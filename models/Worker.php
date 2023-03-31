@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "worker".
@@ -16,19 +17,18 @@ use Yii;
  * @property int $is_works
  * @property int $position_id
  */
-class Worker extends \yii\db\ActiveRecord
+class Worker extends \yii\db\ActiveRecord implements IdentityInterface
 {
-    /**
-     * {@inheritdoc}
-     */
+    public $username = '';
+
+    public const STATUS_ADMIN = 1;
+    public const STATUS_MANAGER = 2;
+
     public static function tableName()
     {
         return 'worker';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
@@ -53,11 +53,55 @@ class Worker extends \yii\db\ActiveRecord
             'birthday' => 'День рождения',
             'is_works' => 'Ещё работает',
             'position_id' => 'Должность',
+            'password' => 'Пароль',
         ];
     }
 
     public function getPosition()
     {
         return $this->hasOne(Position::class, ['id' => 'position_id']);
+    }
+
+    public function validatePassword($password)
+    {
+        return true;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
+    }
+
+    public static function findIdentity($id)
+    {
+        return Worker::findOne($id);
+    }
+
+    public static function findByEmail($email) {
+        return Worker::findOne(['email' => $email]);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return true;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+        return true;
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        return true;
+    }
+
+    public function isAdmin() {
+        return $this->position->id == Worker::STATUS_ADMIN;
+    }
+
+    public function isManager() {
+        return $this->position->id == Worker::STATUS_MANAGER;
     }
 }

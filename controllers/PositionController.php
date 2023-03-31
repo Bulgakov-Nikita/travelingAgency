@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Position;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -30,6 +31,10 @@ class PositionController extends Controller
                             'allow' => true,
                             'actions' => ['index', 'create', 'update', 'view', 'delete'],
                             'roles' => ['@'],
+                            'matchCallback' => function ($rule, $action) {
+                                $user = Yii::$app->user->getIdentity();
+                                return $user->isAdmin();
+                            }
                         ],
                     ],
                 ],

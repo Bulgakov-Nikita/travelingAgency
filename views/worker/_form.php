@@ -40,6 +40,8 @@ $positions = \yii\helpers\ArrayHelper::map(\app\models\Position::find()->all(), 
 
     <?= $form->field($model, 'position_id')->dropDownList($positions) ?>
 
+    <?= $form->field($model, 'password')->textInput(['maxlength' => true]) ?>
+
     <div class="form-group">
         <br>
         <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>

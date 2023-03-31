@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Client;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -28,8 +29,21 @@ class ClientController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'create', 'update', 'view', 'delete'],
+                        'actions' => ['index', 'view'],
                         'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->getIdentity();
+                            return $user->isAdmin() or $user->isManager();
+                        }
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'delete'],
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->getIdentity();
+                            return $user->isAdmin();
+                        }
                     ],
                 ],
             ],

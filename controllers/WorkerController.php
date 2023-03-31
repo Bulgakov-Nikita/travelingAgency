@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Worker;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -30,6 +31,10 @@ class WorkerController extends Controller
                             'allow' => true,
                             'actions' => ['index', 'create', 'update', 'view', 'delete'],
                             'roles' => ['@'],
+                            'matchCallback' => function ($rule, $action) {
+                                $user = Yii::$app->user->getIdentity();
+                                return $user->isAdmin();
+                            }
                         ],
                     ],
                 ],
@@ -94,6 +99,7 @@ class WorkerController extends Controller
         if ($this->request->isPost) {
             $model->load($this->request->post());
             $model->phone = preg_replace('/[^0-9]/', '', $model->phone);
+            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
             if ($model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -119,6 +125,7 @@ class WorkerController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post())) {
             $model->phone = preg_replace('/[^0-9]/', '', $model->phone);
+            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
             if ($model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
